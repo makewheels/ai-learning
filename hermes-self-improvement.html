@@ -1,0 +1,212 @@
+<title>Hermes 自我改进图解</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<div class="wrap">
+<header class="masthead">
+  <div class="eyebrow">Agent 记忆机制研究 · Hermes 篇 · 2026</div>
+  <h1>Hermes 自我改进<br>一条会学习的闭环</h1>
+  <p class="lede">Nous Research 的 <b>Hermes</b> 把记忆当成「随用随记的同事」:不靠改模型权重,而是靠一条 turn 结束后自动跑的<b>后台自我改进 review</b>,把经验固化成记忆(硬事实)和技能(可复用流程),下次会话按需取用。冲突靠「满了报错、自己腾地方」硬兜底。</p>
+  <div class="legend">
+    <span class="item"><span class="swatch hermes"></span> Hermes(Nous Research)</span>
+    <a href="index.html">← 回索引</a>
+    <a href="codex-memory.html">Codex 篇 →</a>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目录">
+  <a href="#loop">学习循环</a>
+  <a href="#skills">技能与目录</a>
+  <a href="#conflict">容量协商</a>
+  <a href="#tiers">三层记忆</a>
+  <a href="#sources">来源</a>
+</nav>
+
+<section id="loop" class="sec-hermes">
+  <h2><span class="bar"></span>Hermes:一条会自我改进的闭环</h2>
+  <p>Hermes 的卖点是「唯一内置学习循环的 agent」。它<b>不靠改模型权重</b>变强,而是靠:从经验里<b>造技能</b>、用的时候<b>磨技能</b>、<b>翻自己过去的对话</b>、跨会话<b>越攒越懂你</b>。核心是一条 turn 结束后自动跑的<b>后台自我改进 review</b>。</p>
+
+  <div class="analogy">
+    <b>打个比方:</b>Hermes 像一个<b>会记「经验教训」的同事</b>。每做完一件事,他会退一步复盘:「这次哪条弯路别再走了?这套流程值不值得存成一张操作卡?」然后把<b>硬事实</b>写进便利贴(记忆,空间有限所以得合并),把<b>可复用流程</b>写成一张操作卡(技能,用到才翻)。下次开工,便利贴已经贴在他眼前,操作卡放在抽屉里按名字取。
+  </div>
+
+  <figure>
+    <div class="figscroll">
+      <svg viewBox="0 0 720 440" role="img" aria-label="Hermes 学习循环:对话轮次触发后台review重放对话,提炼成记忆或技能,经可选审批闸门,下次会话以冻结快照注入并按需加载技能与检索旧对话,闭环影响下一轮">
+        <defs>
+          <marker id="axAmb" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#b45309"/></marker>
+        </defs>
+        <text x="360" y="222" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="600" fill="#b45309" opacity="0.35" text-anchor="middle">学习循环</text>
+        <rect x="30" y="30" width="230" height="64" rx="10" fill="#ffffff" stroke="#d9dde5"/>
+        <text x="50" y="58" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="600" fill="#1b1f27">① 对话轮次(turn)</text>
+        <text x="50" y="80" font-family="Inter,sans-serif" font-size="12" fill="#525b6b">agent 正常干活、回答</text>
+        <rect x="440" y="24" width="252" height="98" rx="10" fill="#ffffff" stroke="#b45309" stroke-width="1.6"/>
+        <text x="458" y="50" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="600" fill="#b45309">② 后台自我改进 review</text>
+        <text x="458" y="72" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">turn 结束后自动 fork,重放整段对话</text>
+        <text x="458" y="90" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">(对话已在 prompt 缓存里,读很便宜)</text>
+        <text x="458" y="108" font-family="Inter,sans-serif" font-size="11.5" fill="#525b6b">可换更便宜模型;本地 GPU 空闲时才跑</text>
+        <rect x="440" y="250" width="252" height="146" rx="10" fill="#faf0e3" stroke="#b45309"/>
+        <text x="458" y="276" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="600" fill="#b45309">③ 提炼并写入(两个出口)</text>
+        <text x="458" y="300" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">记忆(事实)· memory 工具</text>
+        <text x="458" y="317" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">add / patch / remove</text>
+        <text x="458" y="334" font-family="'JetBrains Mono',monospace" font-size="11" fill="#525b6b">→ MEMORY.md / USER.md</text>
+        <text x="458" y="358" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">技能(流程)· skill_manage</text>
+        <text x="458" y="375" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">create / patch</text>
+        <text x="458" y="392" font-family="'JetBrains Mono',monospace" font-size="11" fill="#525b6b">→ ~/.hermes/skills/</text>
+        <rect x="30" y="250" width="252" height="128" rx="10" fill="#ffffff" stroke="#d9dde5"/>
+        <text x="50" y="276" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="600" fill="#1b1f27">④ 下次会话</text>
+        <text x="50" y="300" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">记忆作为冻结快照注入 system prompt</text>
+        <text x="50" y="318" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">(会话中途不变,保住前缀缓存)</text>
+        <text x="50" y="338" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">技能按需加载(progressive disclosure)</text>
+        <text x="50" y="358" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">session_search(FTS5)翻旧对话</text>
+        <line x1="260" y1="62" x2="436" y2="62" stroke="#b45309" stroke-width="1.6" marker-end="url(#axAmb)"/>
+        <text x="348" y="53" font-family="Inter,sans-serif" font-size="11" fill="#525b6b" text-anchor="middle">轮次结束触发</text>
+        <line x1="566" y1="122" x2="566" y2="246" stroke="#b45309" stroke-width="1.6" marker-end="url(#axAmb)"/>
+        <text x="578" y="188" font-family="Inter,sans-serif" font-size="11" fill="#525b6b">提炼</text>
+        <line x1="440" y1="322" x2="286" y2="322" stroke="#b45309" stroke-width="1.6" marker-end="url(#axAmb)"/>
+        <text x="363" y="342" font-family="Inter,sans-serif" font-size="10.5" fill="#525b6b" text-anchor="middle">经 write_approval 闸门(可选)</text>
+        <line x1="145" y1="250" x2="145" y2="98" stroke="#b45309" stroke-width="1.6" marker-end="url(#axAmb)"/>
+        <text x="133" y="178" font-family="Inter,sans-serif" font-size="11" fill="#525b6b" text-anchor="end">影响下一轮(闭环)</text>
+      </svg>
+    </div>
+    <figcaption><b>图 1 · Hermes 学习循环。</b>和 Codex 的「夜里整理」不同,这条循环<b>贴着每一轮对话跑</b>。触发造技能/记忆的三种典型情形:① 摸索出一套值得复用的多步流程;② 撞了墙、试错后找到能走通的路;③ 用户纠正了它的做法。写进技能的是「教训不是流水账」——一条 pitfall = 一句可泛化的规则 + 一句为什么,挂在对应步骤上,不写 PR 号、日期、聊天原文。</figcaption>
+  </figure>
+</section>
+
+<section id="skills" class="sec-hermes">
+  <h2><span class="bar"></span>技能(skill)长什么样:又是「目录 + 分点」</h2>
+  <p>Hermes 的技能存在 <code>~/.hermes/skills/</code>(唯一事实来源),按分类分目录;每个技能是一个文件夹,核心是一份 <code>SKILL.md</code>——YAML 头 + 固定分点小标题。agent 通过 <code>skill_manage</code> 工具自己建、自己改、自己删。</p>
+  <pre class="tree">~/.hermes/skills/                 <span class="c"># 唯一事实来源</span>
+├── devops/
+│   └── <span class="ha">deploy-k8s/</span>               <span class="c"># agent 自建的技能</span>
+│       ├── <span class="ha">SKILL.md</span>              <span class="c"># 主指令(必需)</span>
+│       ├── references/           <span class="c"># 细分文档,skill_view 按需加载</span>
+│       └── scripts/ templates/ assets/
+├── .hub/                         <span class="c"># Skills Hub 状态:lock / quarantine / audit.log</span>
+└── .bundled_manifest             <span class="c"># 内置技能来源哈希(判断你有没有改过)</span>
+
+~/.hermes/memories/
+├── <span class="ha">MEMORY.md</span>   <span class="c"># agent 自己的笔记,上限 2200 字符(~800 tokens)</span>
+└── <span class="ha">USER.md</span>     <span class="c"># 用户画像,上限 1375 字符(~500 tokens)</span></pre>
+  <pre class="tree"><span class="c"># SKILL.md 的「分点」骨架</span>
+---
+name: my-skill
+description: 一句话说清这技能干嘛(≤60 字符)
+---
+## When to Use      <span class="c"># 触发条件</span>
+## Procedure        <span class="c"># 1. 2. 3. 有序步骤 + 能跑通的命令</span>
+## Pitfalls         <span class="c"># 已知失败模式与修法(规则 + 一句为什么)</span>
+## Verification     <span class="c"># 怎么确认它成了</span></pre>
+  <p class="sub">加载用「渐进式披露」省 token:<code>skills_list()</code> 只给名字+描述(约 3k tokens)→ 真要用才 <code>skill_view(name)</code> 读全文 → 更细再 <code>skill_view(name, path)</code> 读某个 reference 文件。所以查询成本只跟「答案」成正比,不跟「资料总量」成正比。</p>
+</section>
+
+<section id="conflict" class="sec-hermes">
+  <h2><span class="bar"></span>Hermes 怎么处理记忆冲突 / 写满</h2>
+  <p>Hermes 的记忆是<b>硬上限</b>的(MEMORY 2200 字符、USER 1375 字符),而且<b>不自动压缩</b>。它的冲突处理比 <a href="codex-memory.html">Codex</a>「确定性」得多——满了直接报错,逼 agent 自己腾地方:</p>
+
+  <figure>
+    <div class="figscroll">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Hermes 记忆容量协商:添加会超上限时工具报错并返回现有条目和需腾出的字符数,agent在同一batch里删除或patch旧条目并添加新条目,上限只对batch最终结果校验后写入成功">
+        <defs>
+          <marker id="capAmb" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#b45309"/></marker>
+        </defs>
+        <rect x="24" y="40" width="182" height="64" rx="10" fill="#ffffff" stroke="#d9dde5"/>
+        <text x="115" y="68" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#1b1f27" text-anchor="middle">想 add 一条新记忆</text>
+        <text x="115" y="88" font-family="Inter,sans-serif" font-size="11" fill="#525b6b" text-anchor="middle">(会超过字符上限)</text>
+
+        <rect x="252" y="32" width="212" height="80" rx="10" fill="#faf0e3" stroke="#b45309"/>
+        <text x="358" y="58" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#b45309" text-anchor="middle">工具返回 error</text>
+        <text x="358" y="80" font-family="Inter,sans-serif" font-size="11" fill="#1b1f27" text-anchor="middle">附 current_entries +</text>
+        <text x="358" y="97" font-family="Inter,sans-serif" font-size="11" fill="#1b1f27" text-anchor="middle">「还需腾出 N 个字符」</text>
+
+        <rect x="506" y="32" width="230" height="80" rx="10" fill="#ffffff" stroke="#b45309" stroke-width="1.4"/>
+        <text x="621" y="56" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#1b1f27" text-anchor="middle">同一次 operations batch:</text>
+        <text x="621" y="78" font-family="Inter,sans-serif" font-size="11" fill="#1b1f27" text-anchor="middle">remove / patch 旧条目腾空间</text>
+        <text x="621" y="95" font-family="Inter,sans-serif" font-size="11" fill="#1b1f27" text-anchor="middle">+ add 新条目</text>
+
+        <rect x="506" y="150" width="230" height="60" rx="10" fill="#faf0e3" stroke="#b45309"/>
+        <text x="621" y="176" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#b45309" text-anchor="middle">上限只校验 batch 最终结果</text>
+        <text x="621" y="196" font-family="Inter,sans-serif" font-size="11" fill="#1b1f27" text-anchor="middle">→ 写入成功</text>
+
+        <line x1="206" y1="72" x2="248" y2="72" stroke="#b45309" stroke-width="1.6" marker-end="url(#capAmb)"/>
+        <line x1="464" y1="72" x2="502" y2="72" stroke="#b45309" stroke-width="1.6" marker-end="url(#capAmb)"/>
+        <line x1="621" y1="112" x2="621" y2="146" stroke="#b45309" stroke-width="1.6" marker-end="url(#capAmb)"/>
+
+        <rect x="24" y="140" width="440" height="146" rx="10" fill="#ffffff" stroke="#d9dde5"/>
+        <text x="44" y="166" font-family="'Space Grotesk',sans-serif" font-size="12.5" font-weight="600" fill="#b45309">其它冲突 / 去重规则(都比 Codex 更「硬」)</text>
+        <text x="44" y="192" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">· 精确重复 → 自动拒绝(返回 “no duplicate added”)</text>
+        <text x="44" y="214" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">· patch/remove 用「唯一子串」定位;匹配到多条 → 报错要更具体</text>
+        <text x="44" y="236" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">· 没有 replace(整条覆盖会误删多事实条目),只有 patch 改一段</text>
+        <text x="44" y="258" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">· 写入前安全扫描:注入 / 外泄 / 隐形 Unicode → 命中即拦截</text>
+        <text x="44" y="278" font-family="Inter,sans-serif" font-size="11.5" fill="#525b6b">· write_approval 闸门:可要求所有写入先经人工 approve 才落盘</text>
+      </svg>
+    </div>
+    <figcaption><b>图 2 · 容量协商就是冲突处理。</b>因为记忆会原样注入 system prompt,所以它必须小、必须有界。写满时不静默丢条目,而是<b>报错让 agent 在同一个 batch 里「删旧 + 加新」</b>,上限只对 batch 的最终结果校验。最佳实践:占用超过 80% 时先合并(把三条「项目用 X」并成一条完整描述)再加新的。</figcaption>
+  </figure>
+</section>
+
+<section id="tiers" class="sec-hermes">
+  <h2><span class="bar"></span>Hermes 的三层记忆(按「粒度 / 成本」分工)</h2>
+  <p>Hermes 不是把所有东西都塞进一个记忆文件,而是三层配合——这正是它「自我改进」能既省 token 又能记住大量东西的原因:</p>
+  <div class="tiers">
+    <div class="tier">
+      <div class="head"><div class="t">① 持久记忆</div><div class="p">MEMORY.md · USER.md</div></div>
+      <dl>
+        <dt>装什么</dt><dd>关键硬事实</dd>
+        <dt>在不在上下文</dt><dd>始终在(冻结快照)</dd>
+        <dt>容量</dt><dd>~1300 tokens 封顶</dd>
+        <dt>速度/成本</dt><dd>瞬时 / 每轮都花 token</dd>
+        <dt>谁管</dt><dd>agent 手动策展</dd>
+      </dl>
+    </div>
+    <div class="tier">
+      <div class="head"><div class="t">② 技能 Skills</div><div class="p">~/.hermes/skills/</div></div>
+      <dl>
+        <dt>装什么</dt><dd>较长的可复用流程</dd>
+        <dt>在不在上下文</dt><dd>相关时才加载</dd>
+        <dt>容量</dt><dd>无固定上限</dd>
+        <dt>速度/成本</dt><dd>渐进披露,按需付费</dd>
+        <dt>谁管</dt><dd>agent 自建自改 + curator</dd>
+      </dl>
+    </div>
+    <div class="tier">
+      <div class="head"><div class="t">③ 会话检索</div><div class="p">session_search · SQLite FTS5</div></div>
+      <dl>
+        <dt>装什么</dt><dd>所有过往对话原文</dd>
+        <dt>在不在上下文</dt><dd>不在,查到才取</dd>
+        <dt>容量</dt><dd>无上限(全部会话)</dd>
+        <dt>速度/成本</dt><dd>~20ms / 免费(无 LLM)</dd>
+        <dt>谁管</dt><dd>自动全存</dd>
+      </dl>
+    </div>
+  </div>
+  <p class="sub">分工逻辑:<b>「必须随时在眼前」</b>的进记忆(小而贵),<b>「用到才翻」</b>的进技能(大而按需),<b>「万一要查旧账」</b>的交给全文检索(无限而免费)。Hermes 官方文档明确:整个记忆系统是<b>围绕「一次会话结束」这一刻</b>设计的——所以它建议你在自然边界敲 <code>/new</code>,循环 forget → recall → search 才转得起来。</p>
+
+  <div class="note warn">
+    <span class="tag">再上一层</span>
+    <div>还有个伴生框架 <code>hermes-agent-self-evolution</code>:用 <b>DSPy + GEPA</b>(Genetic-Pareto 提示进化)从真实执行轨迹里<b>自动重写技能文件</b>,只要 API 调用、不用 GPU。这是「自动进化 skill」的激进版。也有批评声音(Towards AI)说这更像「字符串变异」而非真正的学习——把它当成「用进化搜索调 prompt/技能文本」来理解比较稳妥。</div>
+  </div>
+  <div class="note warn">
+    <span class="tag">对照</span>
+    <div>想看「延迟后台合并」那一路?<a href="codex-memory.html">Codex 记忆机制 →</a>。或回 <a href="index.html">索引页</a> 看并排对比。</div>
+  </div>
+</section>
+
+<section id="sources" class="src">
+  <h2><span class="bar" style="background:var(--ink)"></span>来源</h2>
+  <p class="sub">Hermes 细节取自官方仓库与官方文档。</p>
+  <ul>
+    <li>Hermes Agent 仓库 — <a href="https://github.com/NousResearch/hermes-agent">github.com/NousResearch/hermes-agent</a>(学习循环总览)</li>
+    <li>Hermes 官方文档:Memory / Skills / Architecture — <a href="https://hermes-agent.nousresearch.com/docs/">hermes-agent.nousresearch.com/docs</a>(双文件、memory 工具、容量协商、session_search、background review、skill_manage、目录结构)</li>
+    <li>Inside Hermes Agent: How a Self-Improving AI Agent Works — <a href="https://mranand.substack.com/p/inside-hermes-agent-how-a-self-improving">mranand.substack.com</a></li>
+    <li>Hermes 自进化(DSPy + GEPA)与批评 — <a href="https://github.com/NousResearch/hermes-agent/issues/337">issue #337</a> · <a href="https://pub.towardsai.net/hermes-agent-doesnt-learn-24fb958f18d7">Towards AI</a></li>
+  </ul>
+</section>
+
+<footer>
+  图解基于 2026-11 抓取的公开资料整理(Hermes 官方仓库与文档)。字符上限(2200 / 1375)等数值以官方文档当前版本为准。
+</footer>
+</div>

@@ -2,13 +2,19 @@
 
 白话 + 图解的学习笔记,经 GitHub Pages 在线阅读。
 
-## 目前内容
+## 目前内容(每个主题独立成页)
 
-- `index.html` —《Codex × Hermes 记忆机制图解》:OpenAI Codex 与 Nous Research Hermes 两套 agent 记忆的生成 / 更新方式、"目录 + 分点"存储形态、记忆冲突处理,以及 Hermes 的自我改进学习循环。含 4 张手绘机制图 + 目录树 + 并排对比表。
+- `index.html` — 索引 / 枢纽页:跨系统共同点 + 并排对比表 + 两个入口。
+- `codex-memory.html` —《Codex 记忆机制》:两层记忆(AGENTS.md + Memories)、延迟后台的生成/更新流水线、`~/.codex/memories/` 目录与分点存储、LLM 合并 + 时间衰减的冲突处理。
+- `hermes-self-improvement.html` —《Hermes 自我改进》:turn 后后台 review 学习循环、记忆/技能双出口、硬上限容量协商、三层记忆分工、GEPA 自动进化。
+- `style.css` — 三页共享样式。
 
 ## 在线阅读
 
 GitHub Pages:<https://makewheels.github.io/ai-learning/>
+
+- Codex 篇:<https://makewheels.github.io/ai-learning/codex-memory.html>
+- Hermes 篇:<https://makewheels.github.io/ai-learning/hermes-self-improvement.html>
 
 ## 说明
 
