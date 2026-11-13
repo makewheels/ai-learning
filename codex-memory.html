@@ -8,31 +8,26 @@
 <div class="wrap">
 <header class="masthead">
   <div class="eyebrow">Agent 记忆机制研究 · Codex 篇 · 2026</div>
-  <h1>Codex 记忆机制<br>怎么生成、更新、打架</h1>
-  <p class="lede">OpenAI <b>Codex</b> 把记忆当成「后台 nightly 整理」:会话空闲后由两个模型在后台抽取、合并,写进 <code>~/.codex/memories/</code> 一组固定的 markdown 文件,下次会话读回。冲突靠「模型调和 + 时间衰减」。本页用机制图拆开讲。</p>
+  <h1>Codex 记忆机制</h1>
+  <p class="lede">一句话:Codex 把记忆当「后台 nightly 整理」——会话空闲后由两个模型抽取、合并,写进 <code>~/.codex/memories/</code> 的固定 markdown 文件。下面用<b>图 + 真实例子</b>讲,少废话。</p>
   <div class="legend">
     <span class="item"><span class="swatch codex"></span> Codex(OpenAI)</span>
-    <a href="index.html">← 回索引</a>
-    <a href="hermes-self-improvement.html">Hermes 篇 →</a>
+    <a href="index.html">← 索引</a>
+    <a href="hermes-self-improvement.html">Hermes 篇</a>
+    <a href="links.html">资源链接</a>
   </div>
 </header>
 
 <nav class="toc" aria-label="目录">
   <a href="#layers">两层记忆</a>
   <a href="#lifecycle">生成 + 更新</a>
-  <a href="#store">目录与分点</a>
-  <a href="#conflict">冲突处理</a>
-  <a href="#sources">来源</a>
+  <a href="#store">文件长什么样</a>
+  <a href="#conflict">冲突怎么解</a>
 </nav>
 
 <section id="layers" class="sec-codex">
-  <h2><span class="bar"></span>Codex:两层记忆</h2>
-  <p>Codex(2026 年有 CLI / IDE 插件 / ChatGPT 里的云端三种形态,共用一个 <code>~/.codex/</code> 配置目录)把记忆干脆地劈成两层,各干各的活:</p>
-
-  <div class="analogy">
-    <b>打个比方:</b><code>AGENTS.md</code> 是你自己手写、贴在显示器边上的<b>过塑规则卡</b>——每次开工先读一遍,agent 无权改它;<code>Memories</code> 是<b>夜里的整理阿姨</b>——你下班走后,她把你一天散落的便签挑出有用的,合并进一份干净的摘要,第二天你来直接看摘要。
-  </div>
-
+  <h2><span class="bar"></span>两层记忆:一张规则卡 + 一个整理阿姨</h2>
+  <div class="analogy"><code>AGENTS.md</code> = 你手写贴墙上的<b>过塑规则卡</b>(agent 无权改);<code>Memories</code> = <b>夜里的整理阿姨</b>(你走后把散落便签合并成一份摘要)。</div>
   <figure>
     <div class="figscroll">
       <svg viewBox="0 0 760 300" role="img" aria-label="Codex 的两层记忆:手写的 AGENTS.md 与自动生成的 Memories,都在会话开始时读入上下文">
@@ -61,14 +56,12 @@
         <text x="612" y="224" font-family="Inter,sans-serif" font-size="11" fill="#525b6b" text-anchor="middle">下次会话读回</text>
       </svg>
     </div>
-    <figcaption><b>图 1 · 两层各司其职。</b>AGENTS.md 放「稳定的规则」(构建命令、测试约定、代码风格),从第一天到第 365 天都成立;Memories 放「对话里冒出来的事实」,由 agent 自己写。两者都是本机文件,都不跨机器、不跨工具(Claude Code / Cursor / ChatGPT 看不到)。</figcaption>
+    <figcaption><b>图 1</b> · 规则卡放稳定规则,阿姨放对话里冒出的事实;都是本机文件,不跨机器/工具。</figcaption>
   </figure>
 </section>
 
 <section id="lifecycle" class="sec-codex">
-  <h2><span class="bar"></span>Memories 是怎么「生成 + 更新」的</h2>
-  <p>核心是一条<b>延迟、后台、两阶段</b>的流水线——用两个模型:一个负责「挑出值得记的」,另一个负责「和旧记忆合并」。冲突就在合并那一步被消化掉。它<b>不是</b>在一轮对话结束时顺手写。</p>
-
+  <h2><span class="bar"></span>生成 + 更新:延迟、后台、两个模型</h2>
   <figure>
     <div class="figscroll">
       <svg viewBox="0 0 780 646" role="img" aria-label="Codex Memories 生命周期:会话结束、空闲6小时、Phase1抽取脱敏、Phase2全局锁下合并子代理写diff、落盘、下次会话整读摘要并grep正文">
@@ -103,7 +96,7 @@
         <line x1="240" y1="410" x2="240" y2="444" stroke="#0f766e" stroke-width="1.6" marker-end="url(#lcTeal)"/>
         <rect x="40" y="446" width="400" height="56" rx="10" fill="#e6f2f1" stroke="#0f766e"/>
         <text x="60" y="470" font-family="'JetBrains Mono',monospace" font-size="13.5" font-weight="600" fill="#0f766e">⑤ 写入 ~/.codex/memories/</text>
-        <text x="60" y="490" font-family="Inter,sans-serif" font-size="12" fill="#1b1f27">一组固定的 markdown 文件(见下页目录树)</text>
+        <text x="60" y="490" font-family="Inter,sans-serif" font-size="12" fill="#1b1f27">一组固定的 markdown 文件</text>
         <line x1="240" y1="502" x2="240" y2="536" stroke="#0f766e" stroke-width="1.6" marker-end="url(#lcTeal)"/>
         <text x="252" y="524" font-family="Inter,sans-serif" font-size="11.5" fill="#525b6b">下次 Codex 启动时读回</text>
         <rect x="40" y="538" width="400" height="82" rx="10" fill="#ffffff" stroke="#d9dde5"/>
@@ -116,60 +109,76 @@
         <text x="486" y="606" font-family="Inter,sans-serif" font-size="11.5" fill="#1b1f27">但找不到「措辞不同」的事实。</text>
       </svg>
     </div>
-    <figcaption><b>图 2 · Memories 生命周期。</b>关键点:写入是<b>异步后台</b>的——你 4 点做的决定,4 点半开新会话时可能还没整合进去。整条链路还有两道护栏:API 配额低时不跑整合(不跟前台抢额度);30 天没被召回的记忆、30 天没用的 rollout 会被剪除(靠「衰减」清理过时内容,而不是靠精确去重)。</figcaption>
+    <figcaption><b>图 2</b> · 写入是异步后台的:4 点的决定,4 点半可能还没进去。</figcaption>
   </figure>
+
+  <div class="example">
+    <div class="lbl">实例 1 · 一次会话,Phase 1 抽出什么</div>
+<pre><span class="dim">会话里发生的(节选)</span>
+  user:  staging 的 deploy 脚本会静默吞错误,排查时用 prod 那种带输出的跑法
+  user:  这仓库测试用 make test,别直接 pytest
+  agent: …改代码 / 跑测试 / 部署…
+<span class="dim">模型 A 抽出的候选</span>
+  <span class="add">·</span> staging deploy 脚本静默吞错误;诊断改用 production 风格输出
+  <span class="add">·</span> 本仓库测试入口是 make test(不要直接 pytest)
+<span class="dim">落盘前</span>  扫密钥 → 无 → 写入 raw_memories.md,等 Phase 2 合并</pre>
+  </div>
+
+  <div class="example">
+    <div class="lbl">实例 2 · 下次会话「整读」的那份 memory_summary.md</div>
+<pre># 项目 myapi · Rust + Axum + SQLx
+- 测试入口 make test,不要直接 pytest
+- staging(10.0.1.50)deploy 脚本吞错误;诊断用 prod 输出风格
+- 部署 make ship-prod(make ship 已废弃)
+- 用户偏好简洁回答
+<span class="dim">→ 整份塞进上下文(超预算就截断);要更细才去 grep MEMORY.md</span></pre>
+  </div>
 
   <div class="note key">
     <span class="tag">开关</span>
-    <div>Memories 默认<b>关</b>。开:<code>~/.codex/config.toml</code> 里 <code>[features] memories = true</code>,或桌面端 Settings ▸ Personalization ▸ Enable memories。会话内 <code>/memories</code> 控制「本会话能否用旧记忆 / 能否喂给未来」。两个独立开关:<code>use_memories</code>(读入)、<code>generate_memories</code>(写入),可以只读不写或只写不读。</div>
+    <div>默认<b>关</b>:<code>[features] memories = true</code> 开启;<code>use_memories</code>(读)/ <code>generate_memories</code>(写)可独立开关;会话内 <code>/memories</code> 临时控制。</div>
   </div>
 </section>
 
 <section id="store" class="sec-codex">
-  <h2><span class="bar"></span>「以目录和分点形式保存」长这样</h2>
-  <p>Codex 的存储形态:没有数据库、没有嵌入索引,就是 <code>~/.codex/memories/</code> 下一组<b>固定名字的 markdown 文件</b>。每条记忆是文件里的分点条目。</p>
+  <h2><span class="bar"></span>文件长什么样:目录 + 分点,没有数据库</h2>
   <pre class="tree">~/.codex/memories/
-├── <span class="hl">memory_summary.md</span>      <span class="c"># 下次会话最先「整读」的整合视图(会被截断到预算内)</span>
-├── <span class="hl">MEMORY.md</span>              <span class="c"># 长期合并后的记忆正文;需要细节时 grep 它</span>
-├── raw_memories.md       <span class="c"># 整合前的原始抽取输出</span>
+├── <span class="hl">memory_summary.md</span>      <span class="c"># 下次会话最先「整读」的整合视图(实例 2 就是它)</span>
+├── <span class="hl">MEMORY.md</span>              <span class="c"># 合并后的记忆正文;需要细节时 grep 它</span>
+├── raw_memories.md       <span class="c"># 整合前的原始抽取输出(实例 1 的候选)</span>
 ├── skills/
 │   └── &lt;name&gt;/SKILL.md   <span class="c"># 与某个技能相关的记忆</span>
 └── rollout_summaries/
     └── &lt;slug&gt;.md         <span class="c"># 每个会话的摘要,喂给整合流程</span></pre>
-  <p class="sub">这组文件被官方定位为「Codex 托管的生成态」:你可以打开看,但<b>不建议手改</b>作为主要控制手段——要改稳定规则,请去改 <code>AGENTS.md</code>。(对比一下:<a href="hermes-self-improvement.html">Hermes</a> 的同类文件恰恰<b>鼓励</b> agent 主动编辑,这是两家哲学最大的不同。)</p>
+  <p class="sub">官方定位是「生成态」:能看,但<b>不建议手改</b>;要改稳定规则去改 <code>AGENTS.md</code>。<a href="hermes-self-improvement.html">Hermes</a> 恰恰相反,鼓励 agent 主动编辑。</p>
 </section>
 
 <section id="conflict" class="sec-codex">
-  <h2><span class="bar"></span>Codex 怎么处理记忆冲突</h2>
-  <p>Codex 没有「精确去重表」或「版本号比对」那种确定性冲突解决。它把冲突交给<b>模型 + 时间</b>两件事:</p>
+  <h2><span class="bar"></span>冲突怎么解:模型裁决 + 时间淡出(偏「软」)</h2>
+  <div class="example">
+    <div class="lbl">实例 3 · 一条冲突被「合并」消化(模型 B,不是字符串去重)</div>
+<pre><span class="dim">旧记忆  </span>  部署用 make ship
+<span class="dim">新候选  </span>  部署改用 make ship-prod(make ship 已废弃)
+<span class="add">合并结果</span>  部署用 make ship-prod(make ship 已废弃,2026-09 起)
+<span class="dim">同时    </span>  合并前获取全局锁,防止两个后台整合互相覆盖</pre>
+  </div>
   <ul class="pts">
-    <li><b>合并即调和(主力)。</b>Phase 2 的「整合子代理」(模型 B)拿到新候选和整份旧记忆库,由它判断谁覆盖谁、哪些该并成一条,然后写出 diff。矛盾的事实由这个 LLM 步骤「读上下文后裁决」,而不是规则引擎。</li>
-    <li><b>全局锁防并发。</b>合并前<b>获取一把全局锁</b>,保证同一时刻只有一个整合在写 <code>~/.codex/memories/</code>,避免两个后台任务互相覆盖(这是「写冲突」,区别于「内容冲突」)。</li>
-    <li><b>衰减清理过时。</b>30 天未被召回的单条记忆被剪除、30 天未用的 rollout 被老化淘汰。过时/失效内容靠「用不到就淡出」自然清掉。</li>
-    <li><b>AGENTS.md 用「就近覆盖」。</b>静态层不靠合并:从 git 根走到当前目录,沿途 <code>AGENTS.md</code> 按路径顺序拼接;同目录的 <code>AGENTS.override.md</code> 优先于旁边的 <code>AGENTS.md</code>——层级越深、越具体的说了算。</li>
+    <li><b>合并即调和:</b>模型 B 读新候选 + 整份旧库,裁决谁覆盖谁、哪些并成一条(见实例 3)。</li>
+    <li><b>全局锁:</b>同一时刻只有一个整合在写,防并发覆盖(写冲突)。</li>
+    <li><b>30 天衰减:</b>没被召回的记忆 / 没用的 rollout 自动剪除,过时内容靠「淡出」清理。</li>
+    <li><b>AGENTS.md 就近覆盖:</b>越深越具体优先,<code>AGENTS.override.md</code> 压过同级 <code>AGENTS.md</code>。</li>
   </ul>
   <div class="note key">
     <span class="tag">代价</span>
-    <div>因为冲突是 LLM 裁决 + 时间衰减,所以「你 4 点的决定 4 点半不一定在」;而且生成态不保证可手工精修。想要确定性、跨机器、跨工具的冲突控制,官方路径之外要上 Mem0 / MemoryRouter / Cognee 这类外挂层(它们才提供 <code>update_memory</code> / <code>delete_memory</code> 这类显式工具和语义检索)。</div>
+    <div>软裁决 = 滞后 + 不可精修。要确定性/跨机器/跨工具,得上 Mem0 / MemoryRouter / Cognee 外挂层(见 <a href="links.html">资源链接</a>)。</div>
   </div>
   <div class="note key">
     <span class="tag">下一篇</span>
-    <div>想看另一半?<a href="hermes-self-improvement.html">Hermes 的自我改进学习循环 →</a>(即时、每轮后、agent 亲手改,冲突靠「满了报错」硬兜底)。或回 <a href="index.html">索引页</a> 看并排对比。</div>
+    <div><a href="hermes-self-improvement.html">Hermes 的自我改进 →</a>(即时、每轮后、agent 亲手改,冲突靠「满了报错」硬兜底)。</div>
   </div>
 </section>
 
-<section id="sources" class="src">
-  <h2><span class="bar" style="background:var(--ink)"></span>来源</h2>
-  <p class="sub">Codex 官方文档页(<code>learn.chatgpt.com/docs/customization/memories</code>)在本机网络返回 Forbidden,故下列细节取自几篇对其「已文档化行为」的拆解(2026-07~09)。</p>
-  <ul>
-    <li>Codex CLI Memory: How It Works + What Mem0 Adds — <a href="https://mem0.ai/library/coding-agents/how-memory-works-in-codex-cli">mem0.ai</a>(两层结构、流水线、文件集、grep 召回的主要来源)</li>
-    <li>Does Codex Have Memory? Persistent Context — <a href="https://memoryrouter.ai/blog/codex-persistent-memory">memoryrouter.ai</a>(开关、后台整合、跳过短会话、本机限制)</li>
-    <li>Memories in Codex · Discussion #12567 — <a href="https://github.com/openai/codex/discussions/12567">github.com/openai/codex</a></li>
-    <li>官方文档(权威,但本机被墙):Memories / AGENTS.md — <a href="https://learn.chatgpt.com/docs/customization/memories">learn.chatgpt.com</a></li>
-  </ul>
-</section>
-
 <footer>
-  图解基于 2026-11 抓取的公开资料整理。Codex 具体数字(6h 空闲、256 rollouts、30 天剪枝、32 KiB)来自 mem0 对官方文档化行为的拆解,可能随版本变化;要精确值以 OpenAI <code>config-reference</code> 为准。
+  例子为便于理解的示意(形状与字段对齐官方/mem0 描述);Codex 数字(6h / 256 / 30 天 / 32 KiB)以 OpenAI <code>config-reference</code> 为准。来源见 <a href="links.html">资源链接</a>。
 </footer>
 </div>

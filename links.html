@@ -1,0 +1,73 @@
+<title>Agent 记忆机制 · 资源与链接</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<div class="wrap">
+<header class="masthead">
+  <div class="eyebrow">Agent 记忆机制研究 · 资源 · 2026</div>
+  <h1>资源与链接</h1>
+  <p class="lede">研究这两套记忆机制时真正用得上、值得收藏的链接,按「官方一手 / 深度拆解 / 讨论与批评 / 外挂记忆层 / 对照阅读」分组。每条附一句「为什么值得看」。</p>
+  <div class="legend">
+    <a href="index.html">← 回索引</a>
+    <a href="codex-memory.html">Codex 篇</a>
+    <a href="hermes-self-improvement.html">Hermes 篇</a>
+  </div>
+</header>
+
+<section class="src">
+  <h2><span class="bar" style="background:var(--ink)"></span>官方一手(权威)</h2>
+  <ul>
+    <li><a href="https://learn.chatgpt.com/docs/customization/memories">Codex · Memories 官方文档</a> — Memories 的开关、生成时机、区域限制的权威说明(本机网络曾返回 Forbidden,但它是第一手)。</li>
+    <li><a href="https://developers.openai.com/codex/guides/agents-md">Codex · AGENTS.md guide</a> — 分层发现(全局→项目 walk→cwd)、<code>AGENTS.override.md</code> 优先、fallback 文件名。</li>
+    <li><a href="https://developers.openai.com/codex">Codex · config-reference</a> — 所有 config key、默认值、上限(6h / 256 rollouts / 30 天 / 32 KiB)的权威出处;要精确值看这里。</li>
+    <li><a href="https://agents.md">agents.md 开放规范</a> — 跨工具指令文件约定,现归 Linux Foundation 的 Agentic AI Foundation;Codex/Cursor/Aider/Jules 都认它。</li>
+    <li><a href="https://hermes-agent.nousresearch.com/docs/">Hermes 官方文档</a> — Memory / Skills / Architecture 三章是学习循环、容量协商、session_search 的第一手。</li>
+    <li><a href="https://github.com/NousResearch/hermes-agent">Hermes 仓库(github)</a> — 源码与 README;「closed learning loop」的原始表述在这。</li>
+    <li><a href="https://agentskills.io">agentskills.io</a> — Skill 开放标准 + Skills Hub;Hermes 技能格式与它兼容。</li>
+  </ul>
+</section>
+
+<section class="src">
+  <h2><span class="bar" style="background:var(--codex)"></span>深度拆解(把机制讲透)</h2>
+  <ul>
+    <li><a href="https://mem0.ai/library/coding-agents/how-memory-works-in-codex-cli">mem0 · How Memory Works in Codex CLI</a> — 本页 Codex 部分的主要来源:两层结构、两阶段流水线、固定文件集、grep 召回,讲得最细。</li>
+    <li><a href="https://memoryrouter.ai/blog/codex-persistent-memory">MemoryRouter · Does Codex Have Memory?</a> — 开关细节、后台整合的滞后性、本机/单工具限制,以及「指令 vs 状态 vs 决策」的三分法。</li>
+    <li><a href="https://mranand.substack.com/p/inside-hermes-agent-how-a-self-improving">Substack · Inside Hermes Agent</a> — Hermes 学习循环与 agent 内部实现的深挖长文。</li>
+  </ul>
+</section>
+
+<section class="src">
+  <h2><span class="bar" style="background:var(--hermes)"></span>讨论与批评(看另一面)</h2>
+  <ul>
+    <li><a href="https://github.com/openai/codex/discussions/12567">openai/codex · Discussion #12567「Memories in Codex」</a> — 社区对「生成态记忆」的质疑:主张 AGENTS.md 这种显式可编辑文件才是可靠记忆。</li>
+    <li><a href="https://github.com/NousResearch/hermes-agent/issues/337">hermes-agent · issue #337「Evolutionary Self-Improvement」</a> — 自进化的三层设计(模型能力 / 技能 / 编排)讨论,GEPA 路线的出处。</li>
+    <li><a href="https://pub.towardsai.net/hermes-agent-doesnt-learn-24fb958f18d7">Towards AI · Hermes Agent Doesn't Learn. It Mutates Strings.</a> — 对 GEPA 自进化的批评:更像「字符串变异」而非真学习;读它防止把自进化浪漫化。</li>
+  </ul>
+</section>
+
+<section class="src">
+  <h2><span class="bar" style="background:var(--ink)"></span>外挂记忆层(向量 / 语义检索那一路)</h2>
+  <p class="sub">两家原生记忆都不用向量库;下面这些是「补上语义检索 / 跨机器 / 跨工具」的第三方层,常被拿来和原生方案对比或叠加。</p>
+  <ul>
+    <li><a href="https://mem0.ai">Mem0</a> — 托管 + 开源记忆层;对 Codex 提供 MCP 集成(<code>add_memory</code>/<code>search_memories</code> 等),跨机器跨工具。</li>
+    <li><a href="https://github.com/plastic-labs/honcho">Honcho(plastic-labs)</a> — 辩证式用户建模;Hermes 默认外接的用户画像层。</li>
+    <li><a href="https://hindsight.vectorize.io">Hindsight(Vectorize)</a> — 给 Codex 加跨会话持久召回的方案与博客。</li>
+    <li><a href="https://www.cognee.ai/codex-memory">Cognee</a> — 以 MCP 服务器形式给 Codex 加跨会话记忆。</li>
+    <li><a href="https://memoryrouter.ai">MemoryRouter</a> — 生命周期 hook(每轮捕获 + 召回)+ 跨工具 vault;和 Codex 原生 Memories 的分工讲得清楚。</li>
+  </ul>
+</section>
+
+<section class="src">
+  <h2><span class="bar" style="background:var(--ink)"></span>对照阅读(第三种范式)</h2>
+  <ul>
+    <li><a href="https://docs.claude.com/en/docs/claude-code">Claude Code 文档(记忆机制见 memory 章节)</a> — 第三种范式:每条记忆一个带 frontmatter 的单事实文件 + <code>MEMORY.md</code> 索引、冲突靠「先查已有再更新而非新增」。和 Codex/Hermes 对比着看很有启发。</li>
+  </ul>
+</section>
+
+<footer>
+  链接整理于 2026-11。官方文档的具体数字可能随版本变化;以各官方 config-reference / 文档当前版本为准。
+</footer>
+</div>

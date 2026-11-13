@@ -7,7 +7,8 @@
 - `index.html` — 索引 / 枢纽页:跨系统共同点 + 并排对比表 + 两个入口。
 - `codex-memory.html` —《Codex 记忆机制》:两层记忆(AGENTS.md + Memories)、延迟后台的生成/更新流水线、`~/.codex/memories/` 目录与分点存储、LLM 合并 + 时间衰减的冲突处理。
 - `hermes-self-improvement.html` —《Hermes 自我改进》:turn 后后台 review 学习循环、记忆/技能双出口、硬上限容量协商、三层记忆分工、GEPA 自动进化。
-- `style.css` — 三页共享样式。
+- `links.html` — 资源与链接:官方一手 / 深度拆解 / 讨论与批评 / 外挂记忆层 / 对照阅读,每条附「为什么值得看」。
+- `style.css` — 各页共享样式。
 
 ## 在线阅读
 
