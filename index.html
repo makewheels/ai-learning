@@ -1,4 +1,4 @@
-<title>Agent 记忆机制图解 · 索引</title>
+<title>AI 学习笔记 · 总览</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -7,118 +7,49 @@
 
 <div class="wrap">
 <header class="masthead">
-  <div class="eyebrow">Agent 记忆机制研究 · 2026</div>
-  <h1>Agent 记忆机制图解</h1>
-  <p class="lede">两套代表性方案的白话 + 图解研究,各自独立成篇:OpenAI <b>Codex</b> 的「后台 nightly 整理」式记忆,与 Nous Research <b>Hermes</b> 的「随用随记 + 学习循环」式自我改进。本页是索引与跨系统对比。</p>
-  <div class="legend">
-    <span class="item"><span class="swatch codex"></span> Codex(OpenAI)</span>
-    <span class="item"><span class="swatch hermes"></span> Hermes(Nous Research)</span>
-    <a href="links.html">资源与链接 →</a>
-  </div>
+  <div class="eyebrow">AI 学习笔记 · 总览 · 持续更新</div>
+  <h1>AI 学习笔记</h1>
+  <p class="lede">一个持续增长的白话 + 图解笔记库。每篇 = 机制图 + 真实例子,少废话。本页是<b>总览 / 目录</b>:按系列列出全部文章,新文章往对应系列加一行即可。</p>
 </header>
 
 <section>
-  <div class="entries">
-    <a class="entry codex" href="codex-memory.html">
-      <div class="t">Codex 记忆机制</div>
-      <p>两层记忆(AGENTS.md + Memories)、延迟后台的生成/更新流水线、<code>~/.codex/memories/</code> 目录与分点存储、LLM 合并 + 时间衰减的冲突处理。</p>
-      <span class="go">阅读 Codex 篇 →</span>
+  <h2><span class="bar" style="background:var(--ink)"></span>系列一 · Agent 记忆机制(2026-11)</h2>
+  <p class="sub">两套代表性 agent 的记忆怎么生成、更新、存成目录+分点、冲突怎么解;以及 Hermes 的自我改进循环。</p>
+  <div class="rows">
+    <a class="row row-codex" href="codex-memory.html">
+      <span class="top"><span class="no">01</span><span class="t">Codex 记忆机制</span><span class="go">阅读 →</span></span>
+      <span class="d">两层记忆(AGENTS.md + Memories)、延迟后台的生成/更新流水线、<code>~/.codex/memories/</code> 目录+分点、LLM 合并 + 时间衰减的软冲突。</span>
+      <span class="meta">图 2 · 实例 3 · OpenAI</span>
     </a>
-    <a class="entry hermes" href="hermes-self-improvement.html">
-      <div class="t">Hermes 自我改进</div>
-      <p>turn 后自动跑的后台 review 学习循环、记忆/技能双出口、硬上限容量协商的冲突处理、三层记忆分工与 GEPA 自动进化。</p>
-      <span class="go">阅读 Hermes 篇 →</span>
+    <a class="row row-hermes" href="hermes-self-improvement.html">
+      <span class="top"><span class="no">02</span><span class="t">Hermes 自我改进</span><span class="go">阅读 →</span></span>
+      <span class="d">turn 后后台 review 的学习循环、记忆/技能双出口、硬上限「满了报错」的硬冲突、三层记忆分工、GEPA 自动进化。</span>
+      <span class="meta">图 2 · 实例 4 · Nous Research</span>
+    </a>
+    <a class="row" href="compare.html">
+      <span class="top"><span class="no">03</span><span class="t">并排对比:Codex vs Hermes</span><span class="go">阅读 →</span></span>
+      <span class="d">九维对照表 + 那句反直觉的共同点(两家原生记忆都不用向量库)。</span>
+      <span class="meta">表 1 · 跨系统</span>
+    </a>
+    <a class="row" href="links.html">
+      <span class="top"><span class="no">04</span><span class="t">资源与链接</span><span class="go">阅读 →</span></span>
+      <span class="d">官方一手 / 深度拆解 / 讨论与批评 / 外挂记忆层 / 对照阅读,每条附「为什么值得看」。</span>
+      <span class="meta">链接集</span>
     </a>
   </div>
 </section>
 
-<section id="tldr">
-  <h2><span class="bar" style="background:var(--ink)"></span>先说一个反直觉的共同点</h2>
-  <p>大家默认「AI 记忆 = 向量数据库 + 语义检索」。<b>这两家的原生记忆都不是。</b>Codex 召回是「整读一份摘要文件 + 需要时 <code>grep</code> 正文」;Hermes 召回是「把记忆作为冻结快照塞进 system prompt + 用 SQLite 全文检索(FTS5)翻旧对话」。两边都选了<b>纯文件 / 全文检索</b>,可预测、可读、可手改。真正的向量语义检索是外挂层(Mem0、Honcho、Hindsight 等)才加进来的。</p>
-  <div class="note key">
-    <span class="tag">差异</span>
-    <div>真正的分水岭不在「存哪」,而在<b>什么时候写、由谁调和冲突</b>:Codex 是<b>延迟、后台、双模型合并</b>(会话空闲 6 小时后才整合);Hermes 是<b>即时、每轮后、agent 自己动手</b>(turn 一结束就跑 review,还能当场改技能)。</div>
-  </div>
-</section>
-
-<section id="compare">
-  <h2><span class="bar" style="background:var(--ink)"></span>并排对比</h2>
-  <div class="tablewrap">
-    <table>
-      <thead>
-        <tr><th>维度</th><th class="cx">Codex(OpenAI)</th><th class="hm">Hermes(Nous Research)</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>存储形态</th>
-          <td>生成的 markdown 文件集<br><span class="mono">~/.codex/memories/</span>(固定文件名)+ 手写 <span class="mono">AGENTS.md</span></td>
-          <td>agent 主动编辑的文件<br><span class="mono">MEMORY.md / USER.md</span> + 技能目录 <span class="mono">~/.hermes/skills/</span></td>
-        </tr>
-        <tr>
-          <th>写入触发</th>
-          <td><b>延迟后台</b>:会话空闲 ≥6h 才整合;跳过活跃/过短会话</td>
-          <td><b>即时</b>:每轮 turn 结束后跑 background review</td>
-        </tr>
-        <tr>
-          <th>谁来写</th>
-          <td>两个模型:抽取(模型A)+ 合并(模型B);生成态,不建议手改</td>
-          <td>agent 自己用 <span class="mono">memory</span> / <span class="mono">skill_manage</span> 工具增删改;鼓励编辑</td>
-        </tr>
-        <tr>
-          <th>召回方式</th>
-          <td>整读 <span class="mono">memory_summary.md</span> + 需要时 <span class="mono">grep MEMORY.md</span></td>
-          <td>冻结快照注入 prompt + <span class="mono">session_search</span>(FTS5 全文)</td>
-        </tr>
-        <tr>
-          <th>用向量库吗</th>
-          <td>否(原生层);Mem0 等外挂才加语义检索</td>
-          <td>否(原生层);Honcho/Mem0/Hindsight 等外挂才加</td>
-        </tr>
-        <tr>
-          <th>冲突 / 去重</th>
-          <td><b>LLM 合并裁决 + 全局锁 + 30天衰减剪枝</b>(偏「软」)</td>
-          <td><b>硬上限报错逼合并 + 精确去重 + 唯一子串 patch + 安全扫描 + 审批闸门</b>(偏「硬」)</td>
-        </tr>
-        <tr>
-          <th>自我改进</th>
-          <td>记忆整合为主;有 <span class="mono">skills/&lt;name&gt;/SKILL.md</span> 但无自主进化循环</td>
-          <td>完整学习循环:造技能→磨技能→curator 后台维护→<span class="mono">/learn</span>→(可选)GEPA 自动进化</td>
-        </tr>
-        <tr>
-          <th>跨机器 / 团队</th>
-          <td>都不行(本机、单用户生成态);需外挂层</td>
-          <td>按 profile 隔离;可挂外部 provider 或用 <span class="mono">create_dir</span> 指向共享/git 目录</td>
-        </tr>
-        <tr>
-          <th>人工管控</th>
-          <td>改 <span class="mono">AGENTS.md</span>;<span class="mono">/memories</span> 开关;区域限制(EEA/UK/瑞士 仅 AGENTS.md)</td>
-          <td><span class="mono">write_approval</span> 审批写入;<span class="mono">curator lock</span> 锁技能;<span class="mono">/journey</span> 时间线里删/改所学</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note key">
-    <span class="tag">一句话</span>
-    <div><b>Codex</b> = 「事后由两个模型把散乱会话<b>合并</b>成一份只读摘要,冲突靠模型调和 + 时间淡出」。<b>Hermes</b> = 「每轮后 agent <b>亲手</b>把经验写进有硬上限的记忆和可增改的技能,冲突靠『满了报错、自己腾地方』和审批闸门兜底」。前者省心但滞后、不可精修;后者即时可控,但要你管好边界(敲 <code>/new</code>)和审批。</div>
-  </div>
-</section>
-
-<section id="sources" class="src">
-  <h2><span class="bar" style="background:var(--ink)"></span>来源</h2>
-  <p class="sub">Codex 官方文档页(<code>learn.chatgpt.com/docs/customization/memories</code>)在本机网络返回 Forbidden,故 Codex 细节取自下面几篇对其「已文档化行为」的拆解(2026-07~09);Hermes 细节取自官方仓库与官方文档。各篇页面内也附了各自的来源子集。</p>
-  <ul>
-    <li>Codex CLI Memory: How It Works + What Mem0 Adds — <a href="https://mem0.ai/library/coding-agents/how-memory-works-in-codex-cli">mem0.ai</a>(两层结构、流水线、文件集、grep 召回的主要来源)</li>
-    <li>Does Codex Have Memory? Persistent Context — <a href="https://memoryrouter.ai/blog/codex-persistent-memory">memoryrouter.ai</a>(开关、后台整合、跳过短会话、本机限制)</li>
-    <li>Memories in Codex · Discussion #12567 — <a href="https://github.com/openai/codex/discussions/12567">github.com/openai/codex</a></li>
-    <li>官方文档(权威,但本机被墙):Memories / AGENTS.md — <a href="https://learn.chatgpt.com/docs/customization/memories">learn.chatgpt.com</a></li>
-    <li>Hermes Agent 仓库 — <a href="https://github.com/NousResearch/hermes-agent">github.com/NousResearch/hermes-agent</a>(学习循环总览)</li>
-    <li>Hermes 官方文档:Memory / Skills / Architecture — <a href="https://hermes-agent.nousresearch.com/docs/">hermes-agent.nousresearch.com/docs</a>(双文件、memory 工具、容量协商、session_search、background review、skill_manage、目录结构)</li>
-    <li>Inside Hermes Agent: How a Self-Improving AI Agent Works — <a href="https://mranand.substack.com/p/inside-hermes-agent-how-a-self-improving">mranand.substack.com</a></li>
-    <li>Hermes 自进化(DSPy + GEPA)与批评 — <a href="https://github.com/NousResearch/hermes-agent/issues/337">issue #337</a> · <a href="https://pub.towardsai.net/hermes-agent-doesnt-learn-24fb958f18d7">Towards AI</a></li>
+<section>
+  <h2><span class="bar" style="background:var(--ink)"></span>本笔记怎么读</h2>
+  <ul class="pts">
+    <li><b>看图:</b>每篇开头一张机制图,讲清数据/控制怎么流;图里箭头都带标签。</li>
+    <li><b>看例子:</b>「实例 N」块给真实形态(文件原样、报错 JSON、合并前后),不靠形容词。</li>
+    <li><b>查来源:</b>每篇页脚 + <a href="links.html">资源与链接</a>;数字以官方 config-reference / 文档当前版本为准。</li>
   </ul>
+  <p class="sub">计划中的下一篇:Claude Code 的记忆机制(第三种范式:单事实文件 + MEMORY.md 索引)——加入时在本页「系列一」或新系列加一行即可。</p>
 </section>
 
 <footer>
-  图解基于 2026-11 抓取的公开资料整理。Codex 具体数字(6h 空闲、256 rollouts、30 天剪枝、32 KiB)来自 mem0 对官方文档化行为的拆解,可能随版本变化;要精确值以 OpenAI <code>config-reference</code> 为准。
+  站点为个人学习笔记,内容整理自公开资料。新增文章:在 <code>index.html</code> 的 <code>.rows</code> 里加一个 <code>&lt;a class="row"&gt;</code> 即可。
 </footer>
 </div>

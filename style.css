@@ -200,6 +200,23 @@ tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
 .src a:hover { text-decoration-color: var(--ink-soft); }
 footer { border-top: 1px solid var(--line); padding-top: 18px; font-size: 14px; color: var(--ink-soft); }
 
+/* ── 文章目录行(总览页,可扩展:加文章=加一行) ── */
+.rows { display: flex; flex-direction: column; gap: 10px; }
+.row {
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 13px 16px; text-decoration: none;
+}
+.row:hover { border-color: var(--ink-soft); }
+.row .top { display: flex; align-items: baseline; gap: 12px; }
+.row .no { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); flex-shrink: 0; }
+.row .t { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+.row-codex .t { color: var(--codex); }
+.row-hermes .t { color: var(--hermes); }
+.row .go { margin-left: auto; font-size: 13.5px; color: var(--ink-soft); flex-shrink: 0; }
+.row .d { font-size: 14.5px; color: var(--ink-soft); }
+.row .meta { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+
 @media (max-width: 720px) {
   .tiers, .entries { grid-template-columns: 1fr; }
   body { font-size: 16px; }

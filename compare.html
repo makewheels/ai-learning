@@ -1,0 +1,98 @@
+<title>Codex vs Hermes 并排对比</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<div class="wrap">
+<header class="masthead">
+  <div class="eyebrow">Agent 记忆机制研究 · 对比 · 2026</div>
+  <h1>Codex vs Hermes<br>并排对比</h1>
+  <p class="lede">把两套记忆机制放在一张表里看差异。先看一句反直觉的共同点,再看九维对照。</p>
+  <div class="legend">
+    <span class="item"><span class="swatch codex"></span> Codex(OpenAI)</span>
+    <span class="item"><span class="swatch hermes"></span> Hermes(Nous Research)</span>
+    <a href="index.html">← 回总览</a>
+  </div>
+</header>
+
+<section id="tldr">
+  <h2><span class="bar" style="background:var(--ink)"></span>先说一个反直觉的共同点</h2>
+  <p>大家默认「AI 记忆 = 向量数据库 + 语义检索」。<b>这两家的原生记忆都不是。</b>Codex 召回是「整读一份摘要文件 + 需要时 <code>grep</code> 正文」;Hermes 召回是「把记忆作为冻结快照塞进 system prompt + 用 SQLite 全文检索(FTS5)翻旧对话」。两边都选了<b>纯文件 / 全文检索</b>,可预测、可读、可手改。真正的向量语义检索是外挂层(Mem0、Honcho、Hindsight 等)才加进来的。</p>
+  <div class="note key">
+    <span class="tag">差异</span>
+    <div>真正的分水岭不在「存哪」,而在<b>什么时候写、由谁调和冲突</b>:Codex 是<b>延迟、后台、双模型合并</b>(会话空闲 6 小时后才整合);Hermes 是<b>即时、每轮后、agent 自己动手</b>(turn 一结束就跑 review,还能当场改技能)。</div>
+  </div>
+</section>
+
+<section id="compare">
+  <h2><span class="bar" style="background:var(--ink)"></span>九维对照</h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th class="cx">Codex(OpenAI)</th><th class="hm">Hermes(Nous Research)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>存储形态</th>
+          <td>生成的 markdown 文件集<br><span class="mono">~/.codex/memories/</span>(固定文件名)+ 手写 <span class="mono">AGENTS.md</span></td>
+          <td>agent 主动编辑的文件<br><span class="mono">MEMORY.md / USER.md</span> + 技能目录 <span class="mono">~/.hermes/skills/</span></td>
+        </tr>
+        <tr>
+          <th>写入触发</th>
+          <td><b>延迟后台</b>:会话空闲 ≥6h 才整合;跳过活跃/过短会话</td>
+          <td><b>即时</b>:每轮 turn 结束后跑 background review</td>
+        </tr>
+        <tr>
+          <th>谁来写</th>
+          <td>两个模型:抽取(模型A)+ 合并(模型B);生成态,不建议手改</td>
+          <td>agent 自己用 <span class="mono">memory</span> / <span class="mono">skill_manage</span> 工具增删改;鼓励编辑</td>
+        </tr>
+        <tr>
+          <th>召回方式</th>
+          <td>整读 <span class="mono">memory_summary.md</span> + 需要时 <span class="mono">grep MEMORY.md</span></td>
+          <td>冻结快照注入 prompt + <span class="mono">session_search</span>(FTS5 全文)</td>
+        </tr>
+        <tr>
+          <th>用向量库吗</th>
+          <td>否(原生层);Mem0 等外挂才加语义检索</td>
+          <td>否(原生层);Honcho/Mem0/Hindsight 等外挂才加</td>
+        </tr>
+        <tr>
+          <th>冲突 / 去重</th>
+          <td><b>LLM 合并裁决 + 全局锁 + 30天衰减剪枝</b>(偏「软」)</td>
+          <td><b>硬上限报错逼合并 + 精确去重 + 唯一子串 patch + 安全扫描 + 审批闸门</b>(偏「硬」)</td>
+        </tr>
+        <tr>
+          <th>自我改进</th>
+          <td>记忆整合为主;有 <span class="mono">skills/&lt;name&gt;/SKILL.md</span> 但无自主进化循环</td>
+          <td>完整学习循环:造技能→磨技能→curator 后台维护→<span class="mono">/learn</span>→(可选)GEPA 自动进化</td>
+        </tr>
+        <tr>
+          <th>跨机器 / 团队</th>
+          <td>都不行(本机、单用户生成态);需外挂层</td>
+          <td>按 profile 隔离;可挂外部 provider 或用 <span class="mono">create_dir</span> 指向共享/git 目录</td>
+        </tr>
+        <tr>
+          <th>人工管控</th>
+          <td>改 <span class="mono">AGENTS.md</span>;<span class="mono">/memories</span> 开关;区域限制(EEA/UK/瑞士 仅 AGENTS.md)</td>
+          <td><span class="mono">write_approval</span> 审批写入;<span class="mono">curator lock</span> 锁技能;<span class="mono">/journey</span> 时间线里删/改所学</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note key">
+    <span class="tag">一句话</span>
+    <div><b>Codex</b> = 「事后由两个模型把散乱会话<b>合并</b>成一份只读摘要,冲突靠模型调和 + 时间淡出」。<b>Hermes</b> = 「每轮后 agent <b>亲手</b>把经验写进有硬上限的记忆和可增改的技能,冲突靠『满了报错、自己腾地方』和审批闸门兜底」。前者省心但滞后、不可精修;后者即时可控,但要你管好边界(敲 <code>/new</code>)和审批。</div>
+  </div>
+  <div class="note key">
+    <span class="tag">深入</span>
+    <div>机制与例子分别在 <a href="codex-memory.html">Codex 篇</a> 和 <a href="hermes-self-improvement.html">Hermes 篇</a>;出处见 <a href="links.html">资源与链接</a>。</div>
+  </div>
+</section>
+
+<footer>
+  对比基于 2026-11 抓取的公开资料;具体数字以各官方文档当前版本为准。
+</footer>
+</div>
